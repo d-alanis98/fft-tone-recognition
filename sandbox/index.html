@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <link rel='stylesheet' type='text/css' href='resources/css/index.css' />
+    <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css'
+        integrity='sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk' crossorigin='anonymous'>
+    <script src='https://kit.fontawesome.com/dd7d862ec8.js' crossorigin='anonymous'></script>
+    <title>Proyecto final</title>
+</head>
+
+<body>
+    <div class='container pt-3 text-center text-muted'>
+        <h1>Proyecto final</h1>
+        <div class='form-group pt-4'>
+            <label>Subir archivo de audio (.wav)</label>
+            <div class='input-group'>
+                <div class='custom-file'>
+                    <input type='file' class='custom-file-input' id='audio_file' onchange='setFileName()'>
+                    <label id='audio_file_label' class='custom-file-label' for='audio_file'>Seleccionar archivo</label>
+                </div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <button class='btn btn-primary rounded-lg shadow' onclick='submit()'>
+                <i class='fas fa-wave-square'></i>
+                Procesar
+            </button>
+        </div>
+        <div id='result' class='pt-4'>
+            <div id='loader'>
+                <div class='d-flex flex-column align-items-center'>
+                    <div class='spinner-border' role='status'>
+                        <span class='sr-only'>Loading...</span>
+                    </div>
+                    <h3>Cargando...</h3>
+                </div>
+            </div>
+            <div id='processing_results'>
+                <h2>Resultados</h2>
+                <div class='row text-center'>
+                    <div class='col-md-4 col-sm-12 bg-tile rounded-lg px-3 py-3' role='alert'>
+                        <div class='d-flex flex-column justify-content-center align-items-center h-100'>
+                            <h4>Vocal emitida:</h4>
+                            <h1 class='text-light' id='result_vocal'></h1>
+                        </div>
+                    </div>
+
+                    <div class='col-md-3 col-sm-12 bg-tile rounded-lg px-3 py-3 mx-md-2 my-md-0 my-sm-2'>
+                        <h5>Emitido por:</h5>
+                        <img id='gender_img' src='resources/img/male.png' height='150px' width='150px' />
+                    </div>
+
+                    <div class='col-md-4 col-sm-12 bg-tile rounded-lg px-3 py-3'>
+                        <h4>Parámetros del análisis</h4>
+                        <table class='table table-borderless text-muted'>
+                            <tbody>
+                                <tr>
+                                    <th>Archivo analizado</th>
+                                    <td id='analyzed_file'></td>
+                                </tr>
+                                <tr>
+                                    <th>Frecuencia fundamental</th>
+                                    <td id='fundamental_frequency'></td>
+                                </tr>
+                                <tr>
+                                    <th>Frecuencia de muestreo</th>
+                                    <td id='sampling_frequency'></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Scripts-->
+    <script type='text/javascript' src='resources/js/index.js'></script>
+    <script type='text/javascript'>
+        window.onload = () => {
+            displayElement('loader', false);
+            displayElement('processing_results', false);
+        }
+        let state = {
+            fileName: '',
+        }
+        const setFileName = () => {
+            let fileInput = document.getElementById('audio_file');
+            state.fileName = fileInput.files[0].name;
+            document.getElementById('audio_file_label').innerText = state.fileName
+        }
+
+        const submit = () => {
+            //Se muestra el loader y se oculta la sección de resutlados (por si estaba desplegada)
+            displayElement('loader');
+            displayElement('processing_results', false);
+            //Se hace la petición al backend
+            fetch(`http://localhost:5000/set_audio_file?audio_file=${state.fileName}`)
+            .then(response => response.json())
+            .then(result => {
+                //Se oculta el loader
+                displayElement('loader', false);
+                //Se muestran los resultados en la interfaz
+                setResultInGUI(result);
+                displayElement('processing_results');
+            })
+        }
+
+        const setResultInGUI = result => {
+            setElementInnerText('analyzed_file', result.file_name);
+            setElementInnerText('result_vocal', result.result_vocal);
+            setElementInnerText('fundamental_frequency', `${result.fundamental_frequency.toFixed(3)} Hz`);
+            setElementInnerText('sampling_frequency', `${result.sampling_frequency} Hz`);
+            setImageSource('gender_img', result.result_gender);
+        }
+
+        const setImageSource = (imageId, gender) => {
+            let image = document.getElementById(imageId);
+            if(!image)
+                return;
+            image.src = `resources/img/${gender}.png`;
+        }
+
+        const setElementInnerText = (elementId, text) => {
+            let element = document.getElementById(elementId);
+            if(!element)
+                return;
+            element.innerText = text;
+        }
+
+        const displayElement = (elementId, display = true) => {
+            let element = document.getElementById(elementId);
+            if(!element)
+                return;
+            element.style.display = display ? 'block' : 'none';
+        }
+    </script>
+</body>
+
+</html>
