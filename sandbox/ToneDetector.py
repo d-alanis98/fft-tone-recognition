@@ -40,8 +40,9 @@ def setFrequencyAxis():
 
 def applyFFT():
     global fft_data
-    #fft_data = scipy.fft.fft(audio_samples)
+    #Aplicamos la fft proveniente de nuestro módulo FFT
     fft_data = fft(audio_samples)
+    #fft_data = scipy.fft.fft(audio_samples)
 
 def getSignalData():
     global amplitudes, frequency_axis
@@ -78,7 +79,7 @@ def getFundamentalFrequencyFromSamples(amplitudes, noise_level = DEFAULT_NOISE_L
 def setFundamentalFrequency():
     global fundamental_frequency
     #Definimos que todo lo que este por debajo de la mayor amplitud en el array de amplitudes es ruido
-    noise_level = max(amplitudes)
+    noise_level = np.max(amplitudes)
     #Obtenemos la frecuencia fundamental suministrando los parámetros necesarios (array de amplitudes y nivel de ruido que acabamos de definir)
     fundamental_frequency = getFundamentalFrequencyFromSamples(amplitudes = amplitudes, noise_level = noise_level)
 
