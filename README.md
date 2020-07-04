@@ -33,6 +33,7 @@ Y ejecutamos el servidor con:
 `flask run`
 
 Ya con el servidor activo abrimos el archivo index.html con cualquier navegador (aunque se recomienda que sea con Chrome) y ya se podrá hacer uso del servicio de reconocimiento de vocales por medio de la interfaz web que se despliega.
+Los archivos deben ser seleccionados del directorio sandbox/samples.
 
 Para salir del entorno virtual, ejecutamos el script __deactivate__ contenido en el directorio venv/Scripts.
 
